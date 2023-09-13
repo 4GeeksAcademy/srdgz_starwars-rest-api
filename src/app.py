@@ -14,15 +14,13 @@ from models import db, User,  Planets, Characters, Starships, Favorites
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
-db_url = os.getenv("DATABASE_URL")
-if db_url is not None:
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://")
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 MIGRATE = Migrate(app, db)
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 CORS(app)
 setup_admin(app)
 
@@ -47,7 +45,7 @@ def get_users():
 @app.route('/user', methods=['POST'])
 def new_user():
     request_body_user = request.get_json()
-    another_user = User(first_name=request_body_user["first_name"], email=request_body_user["email"], password=request_body_user["password"])
+    another_user = User(username=request_body_user["username"], email=request_body_user["email"], password=request_body_user["password"])
     db.session.add(another_user)
     db.session.commit()
     return jsonify(request_body_user), 200
@@ -58,12 +56,12 @@ def update_user(user_id):
     user1 = User.query.get(user_id)
     if user1 is None:
         raise APIException('User not found', status_code=404)
-    if "first_name" in request_body_user:
-        user1.email = request_body_user["first_name"]
     if "username" in request_body_user:
         user1.username = request_body_user["username"]
+    if "password" in request_body_user:
+        user1.password = request_body_user["password"]
     if "email" in request_body_user:
-        user1.first_name = request_body_user["email"]
+        user1.email = request_body_user["email"]
     db.session.commit()
     return jsonify(request_body_user), 200
 
@@ -81,24 +79,26 @@ def get_one_user(user_id):
     one_user_query = User.query.filter_by(id=user_id).first()
     if one_user_query is None:
          raise APIException('User does not exist', status_code=404)
-    return jsonify(one_user_query), 200
+    return jsonify(one_user_query.serialize()), 200
 
 # favorites methods
 
-@app.route('/favorites', methods=['GET'])
-def get_favorites():
-    all_favorites = Favorites.query.all()
-    results = list(map(lambda item: item.serialize(),all_favorites))
-    if results == []:
-         raise APIException('There are no favorites', status_code=404)
-    return jsonify(all_favorites), 200
+@app.route('/user/favorites', methods=['GET'])
+def get_user_favorites():
+    user = get_one_user()
+    if not user:
+        raise APIException('User not found', status_code=404)
+    user_favorites = Favorites.query.filter_by(user_id=user.id).all()
+    if not user_favorites:
+        raise APIException('User has no favorites', status_code=404)
+    serialized_favorites = [favorite.serialize() for favorite in user_favorites]
+    return jsonify(serialized_favorites), 200
 
-@app.route('/favorites/<int:favorites_id>', methods=['GET'])
-def favorites(favorites_id):
-    favorites_query = Favorites.query.filter_by(id= favorites_id).first()
-    if favorites_query is None:
-         raise APIException('The list is empty', status_code=404)
-    return jsonify(favorites_query), 200
+
+#@app.route('/favorites/characters/<int:character_id>', methods=['POST'])
+#def add_character_favorite(character_id):
+    
+
 
 # characters methods
 

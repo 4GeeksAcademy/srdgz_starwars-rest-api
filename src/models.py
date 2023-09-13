@@ -4,18 +4,18 @@ db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    first_name = db.Column(db.String(50), unique=False, nullable=False)
+    username = db.Column(db.String(50), unique=True)
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(50), unique=False, nullable=False)
     is_active = db.Column(db.Boolean(), unique=False, nullable=True, default=True)
 
     def __repr__(self):
-        return '<User %r>' % self.first_name
+        return '<User %r>' % self.username
 
     def serialize(self):
         return {
             "id": self.id,
-            "first_name": self.first_name,
+            "username": self.username,
             "email": self.email,
             # do not serialize the password, its a security breach
         }
@@ -127,7 +127,7 @@ class Starships(db.Model):
             "starship_class": self.starship_class,
             "manufacturer": self.manufacturer,
             "cost_in_credits": self.cost_in_credits,
-            "lenght": self.length,
+            "length": self.length,
             "crew": self.crew, 
             "passengers": self.passengers,
             "max_atmosphering_speed": self.max_atmosphering_speed,
