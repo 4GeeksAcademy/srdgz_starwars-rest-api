@@ -4,16 +4,18 @@ db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    first_name = db.Column(db.String(50), unique=False, nullable=False)
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(50), unique=False, nullable=False)
-    is_active = db.Column(db.Boolean(), unique=False, nullable=False)
+    is_active = db.Column(db.Boolean(), unique=False, nullable=True, default=True)
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.first_name
 
     def serialize(self):
         return {
             "id": self.id,
+            "first_name": self.first_name,
             "email": self.email,
             # do not serialize the password, its a security breach
         }
@@ -54,7 +56,7 @@ class Characters(db.Model):
     
     
     def __repr__(self):
-        return '<Characters %r>' % self.id
+        return '<Characters %r>' % self.name
 
     def serialize(self):
         return {
@@ -82,7 +84,7 @@ class Planets(db.Model):
     surface_water = db.Column(db.String(50), unique=False, nullable=False)
     
     def __repr__(self):
-        return '<Planets %r>' % self.id
+        return '<Planets %r>' % self.name
 
     def serialize(self):
         return {
@@ -115,7 +117,7 @@ class Starships(db.Model):
     consumables = db.Column(db.String(50), unique=False, nullable=False)
 
     def __repr__(self):
-        return '<Starships %r>' % self.id
+        return '<Starships %r>' % self.name
 
     def serialize(self):
         return {
