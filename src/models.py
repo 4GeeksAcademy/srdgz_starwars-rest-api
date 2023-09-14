@@ -36,8 +36,8 @@ class Favorites(db.Model):
 
     def serialize(self):
         return {
-            "id_favorito": self.id,
-            "usuario": self.user_id,
+            "favorite_id": self.id,
+            "user_id": self.user_id,
             "character_id": self.character_id,
             "planet_id": self.planet_id,
             "starship_id": self.starship_id        
@@ -65,7 +65,7 @@ class Characters(db.Model):
             "height": self.height,
             "mass": self.mass,
             "hair_color": self.hair_color,
-            "skin-color": self.skin_color,
+            "skin_color": self.skin_color,
             "eye_color": self.eye_color,
             "birth_year": self.birth_year,
             "gender": self.gender,
