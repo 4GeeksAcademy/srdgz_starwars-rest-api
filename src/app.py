@@ -44,6 +44,13 @@ def get_users():
          raise APIException('There are no users', status_code=404)
     return jsonify(all_users), 200
 
+@app.route('/user/<int:user_id>', methods=['GET'])
+def get_one_user(user_id):
+    chosen_user = User.query.filter_by(id=user_id).first()
+    if chosen_user is None:
+         raise APIException('User does not exist', status_code=404)
+    return jsonify(chosen_user.serialize()), 200
+
 @app.route('/user', methods=['POST'])
 def create_user():
     request_body_user = request.get_json()
@@ -75,13 +82,6 @@ def delete_user(user_id):
     db.session.delete(chosen_user)
     db.session.commit()
     return jsonify("User successfully deleted"), 200
-
-@app.route('/user/<int:user_id>', methods=['GET'])
-def get_one_user(user_id):
-    chosen_user = User.query.filter_by(id=user_id).first()
-    if chosen_user is None:
-         raise APIException('User does not exist', status_code=404)
-    return jsonify(chosen_user.serialize()), 200
 
 # favorites methods
 
@@ -178,7 +178,13 @@ def get_characters():
          raise APIException('There are no characters', status_code=404)
     return jsonify(results), 200
 
-"""
+@app.route('/characters/<int:character_id>', methods=['GET'])
+def character(character_id):
+    character_query = Characters.query.filter_by(id= character_id).first()
+    if character_query is None:
+         raise APIException('The character does not exist', status_code=404)
+    return jsonify(character_query.serialize()), 200
+
 @app.route('/characters', methods=['POST'])
 def create_character():
     request_body_user = request.get_json()
@@ -186,14 +192,15 @@ def create_character():
     db.session.add(new_character)
     db.session.commit()
     return jsonify(request_body_user), 200
-"""
 
-@app.route('/characters/<int:character_id>', methods=['GET'])
-def character(character_id):
-    character_query = Characters.query.filter_by(id= character_id).first()
-    if character_query is None:
-         raise APIException('The character does not exist', status_code=404)
-    return jsonify(character_query.serialize()), 200
+@app.route('/characters/<int:character_id>', methods=['DELETE'])
+def delete_character(character_id):
+    chosen_character = Characters.query.get(character_id)
+    if chosen_character is None:
+        raise APIException('Character not found', status_code=404)
+    db.session.delete(chosen_character)
+    db.session.commit()
+    return jsonify("Character successfully deleted"), 200
 
 # planets methods
 
@@ -212,6 +219,23 @@ def planet(planet_id):
          raise APIException('The planet does not exist', status_code=404)
     return jsonify(planet_query.serialize()), 200
 
+@app.route('/planets', methods=['POST'])
+def create_planet():
+    request_body_user = request.get_json()
+    new_planet = Planets(diameter=request_body_user["diameter"], rotation_period=request_body_user["rotation_period"], orbital_period=request_body_user["orbital_period"], gravity=request_body_user["gravity"], population=request_body_user["population"], climate=request_body_user["climate"], terrain=request_body_user["terrain"], surface_water=request_body_user["surface_water"], gravity=request_body_user["gravity"], population=request_body_user["population"], climate=request_body_user["climate"], name=request_body_user["name"])
+    db.session.add(new_planet)
+    db.session.commit()
+    return jsonify(request_body_user), 200
+
+@app.route('/planets/<int:planet_id>', methods=['DELETE'])
+def delete_planet(planet_id):
+    chosen_planet = Planets.query.get(planet_id)
+    if chosen_planet is None:
+        raise APIException('Planet not found', status_code=404)
+    db.session.delete(chosen_planet)
+    db.session.commit()
+    return jsonify("Planet successfully deleted"), 200
+
 # starships methods
 
 @app.route('/starhips', methods=['GET'])
@@ -228,6 +252,23 @@ def starship(starship_id):
     if starship_query is None:
         raise APIException('The starship does not exist', status_code=404)
     return jsonify(starship_query.serialize()), 200 
+
+@app.route('/starships', methods=['POST'])
+def create_starship():
+    request_body_user = request.get_json()
+    new_starship = Starships(model=request_body_user["model"], starship_class=request_body_user["starship_class"], manufacturer=request_body_user["manufacturer"], cost_in_credits=request_body_user["cost_in_credits"], length=request_body_user["length"], crew=request_body_user["crew"], passengers=request_body_user["passengers"], max_atmosphering_speed=request_body_user["max_atmosphering_speed"], hyperdrive_rating=request_body_user["hyperdrive_rating"], MGLT=request_body_user["MGLT"], cargo_capacity=request_body_user["cargo_capacity"], consumables=request_body_user["consumables"], name=request_body_user["name"])
+    db.session.add(new_starship)
+    db.session.commit()
+    return jsonify(request_body_user), 200
+
+@app.route('/starships/<int:starship_id>', methods=['DELETE'])
+def delete_starship(starship_id):
+    chosen_starship = Starships.query.get(starship_id)
+    if chosen_starship is None:
+        raise APIException('Starship not found', status_code=404)
+    db.session.delete(chosen_starship)
+    db.session.commit()
+    return jsonify("Starship successfully deleted"), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
