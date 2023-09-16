@@ -222,7 +222,7 @@ def planet(planet_id):
 @app.route('/planets', methods=['POST'])
 def create_planet():
     request_body_user = request.get_json()
-    new_planet = Planets(diameter=request_body_user["diameter"], rotation_period=request_body_user["rotation_period"], orbital_period=request_body_user["orbital_period"], gravity=request_body_user["gravity"], population=request_body_user["population"], climate=request_body_user["climate"], terrain=request_body_user["terrain"], surface_water=request_body_user["surface_water"], gravity=request_body_user["gravity"], population=request_body_user["population"], climate=request_body_user["climate"], name=request_body_user["name"])
+    new_planet = Planets(diameter=request_body_user["diameter"], rotation_period=request_body_user["rotation_period"], orbital_period=request_body_user["orbital_period"], gravity=request_body_user["gravity"], population=request_body_user["population"], climate=request_body_user["climate"], terrain=request_body_user["terrain"], surface_water=request_body_user["surface_water"], name=request_body_user["name"])
     db.session.add(new_planet)
     db.session.commit()
     return jsonify(request_body_user), 200
